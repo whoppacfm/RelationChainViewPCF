@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "nS9VPA9atENkvp3eRh3BYU82GQ7JXkpirrnKNxz5bQhRyieaS7qQMnbSuv8WCKTQZUocl+GoGIpD+cn0sh0Epw==",
+  "success": true,
+  "projectFilePath": "C:\\RelationChainViewPCF\\RelationChainViewPCFSln\\RelationChainViewPCFSln.cdsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.0\\microsoft.netframework.referenceassemblies.1.0.0.nupkg.sha512",
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net462\\1.0.0\\microsoft.netframework.referenceassemblies.net462.1.0.0.nupkg.sha512",
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.powerapps.msbuild.pcf\\1.17.5\\microsoft.powerapps.msbuild.pcf.1.17.5.nupkg.sha512",
+    "C:\\Users\\merchr\\.nuget\\packages\\microsoft.powerapps.msbuild.solution\\1.17.5\\microsoft.powerapps.msbuild.solution.1.17.5.nupkg.sha512"
+  ],
+  "logs": []
+}
