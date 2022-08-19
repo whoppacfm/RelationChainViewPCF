@@ -1,2 +1,1 @@
-# RelationChainViewPCF
-Show information from related records
+https://github.com/whoppacfm/RelationChainViewPCF/wiki
