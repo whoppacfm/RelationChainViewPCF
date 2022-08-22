@@ -1,10 +1,38 @@
 //React
+import {IInputs, IOutputs} from "./generated/ManifestTypes";
 import React, { useState, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
+import internal from 'stream';
 import { isContext } from 'vm';
 
 function RelationChainView(props:any) {
     
+    /*
+      Test Config
+
+      [
+        { "active":0, "stage":0, "entname":"dev_basecomplex", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_superproductid"] },
+        { "active":0, "stage":1, "entname":"dev_superproduct", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_complexcomponentid", "dev_specialcomponentid"] },
+        { "active":1, "stage":2, "entname":"dev_complexcomponent", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_component1id", "dev_component2id"] },
+        { "active":0, "stage":2, "entname":"dev_specialcomponent", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":[] },
+        { "active":0, "stage":3, "entname":"dev_customcomponent", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_product1id","dev_product2id"] },
+        { "active":0, "stage":4, "entname":"product", "fields":[{"name":"name", "type":"string"}], "lookupfields":[] }
+      ]
+    */
+
+    interface IField {
+      name:string;
+      type:string;
+    }
+
+    interface IConfigEntry {
+      active: number;
+      stage: number;
+      entname: string;
+      fields: Array<IField>;
+      lookupfields: Array<string>;
+    }
+
     interface IChainObject {
       values: Array<string>
     }
@@ -13,7 +41,7 @@ function RelationChainView(props:any) {
       chainData: new Array<IChainObject>()
     });
 
-    function FetchDataForEntry(entry:any, condfield:string, recordid:string) {
+    function FetchDataForEntry(entry:IConfigEntry, condfield:string, recordid:string) {
 
       return new Promise((resolve, reject) => {
 
@@ -66,7 +94,7 @@ function RelationChainView(props:any) {
 		let entityTypeName = (props.context.mode as any).contextInfo.entityTypeName;
     let entityRecordName = (props.context.mode as any).contextInfo.entityRecordName;
 
-    let currentEntry = {};
+    let currentEntry: IConfigEntry = {} as IConfigEntry;
     let currentStage = 0;
 
     for(var i=0;i<paramsArr.length;i++) {
@@ -77,26 +105,13 @@ function RelationChainView(props:any) {
       }
     }
     
-    /*
-      Test Config
-
-      [
-        { "active":0, "stage":0, "entname":"dev_basecomplex", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_superproductid"] },
-        { "active":0, "stage":1, "entname":"dev_superproduct", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_complexcomponentid", "dev_specialcomponentid"] },
-        { "active":1, "stage":2, "entname":"dev_complexcomponent", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_component1id", "dev_component2id"] },
-        { "active":0, "stage":2, "entname":"dev_specialcomponent", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":[] },
-        { "active":0, "stage":3, "entname":"dev_customcomponent", "fields":[{"name":"dev_name", "type":"string"}], "lookupfields":["dev_product1id","dev_product2id"] },
-        { "active":0, "stage":4, "entname":"product", "fields":[{"name":"name", "type":"string"}], "lookupfields":[] }
-      ]
-    */
-    
-    function FetchEntryRecursive(entry:any, condfield:any, entityId:any, push:any) {
+    function FetchEntryRecursive(entry:IConfigEntry, condfield:string, entityId:string, push:number) {
       FetchDataForEntry(entry, condfield, entityId).then(function(result:any) {
 
         result.map((record:ComponentFramework.WebApi.Entity) => {
           let chainObj:IChainObject = {values:[]};
 
-          entry.fields.map((field:any) => {
+          entry.fields.map((field:IField) => {
             let val1 = record[field.name];
             chainObj.values.push(val1);
           });
@@ -109,11 +124,11 @@ function RelationChainView(props:any) {
           }
 
           if(push==1 || push==2) {
-            entry.lookupfields.map((field:any) => {
+            entry.lookupfields.map((field:string) => {
               let nextEntName=record["_"+field+"_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
               let nextRecId=record["_"+field+"_value"];
-              let nextEntry={};
-              const res1 = (paramsArr as Array<any>).filter(item => (item.stage==(entry.stage+1)) && (item.entname == nextEntName));
+              let nextEntry:IConfigEntry= {} as IConfigEntry;
+              const res1 = (paramsArr as Array<IConfigEntry>).filter(item => (item.stage==(entry.stage+1)) && (item.entname == nextEntName));
               if(res1.length>0) {
                 nextEntry = res1[0];
                 FetchEntryRecursive(nextEntry, "", nextRecId, 1);
@@ -122,11 +137,11 @@ function RelationChainView(props:any) {
           }
           
           if(push==0 || push==2) { 
-            const res1 = (paramsArr as Array<any>).filter(item => (item.stage==(entry.stage-1)));
-            let previousEntry:any={};
+            const res1 = (paramsArr as Array<IConfigEntry>).filter(item => (item.stage==(entry.stage-1)));
+            let previousEntry:IConfigEntry = {} as IConfigEntry;
             if(res1.length>0) {
               previousEntry = res1[0];
-              previousEntry.lookupfields.map((lfield:any) => {
+              previousEntry.lookupfields.map((lfield:string) => {
                 FetchEntryRecursive(previousEntry, lfield, entityId, 0);
               });
             }
@@ -161,7 +176,7 @@ function RelationChainView(props:any) {
     );
 }
 
-export function Render(context:any, container:any) {
+export function Render(context:ComponentFramework.Context<IInputs>, container:HTMLDivElement) {
     ReactDOM.render(
             <div><RelationChainView context={context} /></div>
         , container

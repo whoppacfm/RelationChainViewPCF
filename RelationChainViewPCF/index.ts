@@ -8,9 +8,6 @@ export class RelationChainViewPCF implements ComponentFramework.StandardControl<
 	private _context: ComponentFramework.Context<IInputs>;
 	private _controlViewRendered: boolean;
 	private _selectedItem: ComponentFramework.LookupValue;
-	private changeFunction: any;
-	private initialValue:any;
-	public newvalue:Date | null;
 
 	/**
 	 * Empty constructor.
